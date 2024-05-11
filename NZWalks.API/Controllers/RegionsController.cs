@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
+using NZWalks.API.Models.DTO;
 
 namespace NZWalks.API.Controllers
 {
@@ -20,9 +21,23 @@ namespace NZWalks.API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var regions = _nZWalksDbContext.Regions.ToList();
-               
-            return Ok(regions);
+            //Get Data from Database - Domain Models
+            var regionsDomain = _nZWalksDbContext.Regions.ToList();
+            //Map Domain Models to DTOs
+            var regionsDTO = new List<RegionDTO>();
+            foreach (var regionDomain in regionsDomain)
+            {
+                regionsDTO.Add(new RegionDTO()
+                {
+                    Id = regionDomain.Id,
+                    Name = regionDomain.Name,
+                    Code = regionDomain.Code,
+                    RegionImageUrl = regionDomain.RegionImageUrl,
+                });
+            }
+
+            //return DTOs
+            return Ok(regionsDTO);
         }
 
         //GET REGION BY ID
@@ -31,14 +46,27 @@ namespace NZWalks.API.Controllers
         [Route("{id:Guid}")]
         public IActionResult GetRegionById([FromRoute] Guid id) {
 
-            var region = _nZWalksDbContext.Regions.FirstOrDefault(u => u.Id == id);
+            //Get Region Domain Model From Database
+            var regionDomain = _nZWalksDbContext.Regions.FirstOrDefault(u => u.Id == id);
 
             //var region2 = _nZWalksDbContext.Regions.Find(id);
-            if(region == null)
+
+            if (regionDomain == null)
             {
                 return NotFound();
             }
-            return Ok(region);
+
+            //Map Region Domain Model to DTO
+            var regionDTO = new RegionDTO
+            {
+                Id = regionDomain.Id,
+                Name = regionDomain.Name,
+                Code = regionDomain.Code,
+                RegionImageUrl = regionDomain.RegionImageUrl
+            };
+
+            //Return DTO back to Client
+            return Ok(regionDTO);
         }
     }
 }
