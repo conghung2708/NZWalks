@@ -44,7 +44,8 @@ namespace NZWalks.API.Controllers
         //GET: https://localhost:portnumber/api/regions/{id}
         [HttpGet]
         [Route("{id:Guid}")]
-        public IActionResult GetRegionById([FromRoute] Guid id) {
+        public IActionResult GetRegionById([FromRoute] Guid id)
+        {
 
             //Get Region Domain Model From Database
             var regionDomain = _nZWalksDbContext.Regions.FirstOrDefault(u => u.Id == id);
@@ -67,6 +68,35 @@ namespace NZWalks.API.Controllers
 
             //Return DTO back to Client
             return Ok(regionDTO);
+        }
+
+        //POST To Create New Region
+        //POST: https://localhost:portnumber/api/Regions
+        [HttpPost]
+        public IActionResult Create([FromBody] AddRegionRequestDTO addRegionRequestDTO)
+        {
+            //Map or Convert DTO to Domain Model
+            var regionDomainModel = new Region
+            {
+                Code = addRegionRequestDTO.Code,
+                Name = addRegionRequestDTO.Name,
+                RegionImageUrl = addRegionRequestDTO.RegionImageUrl
+            };
+
+            //Use Domain Model to create Region
+            _nZWalksDbContext.Regions.Add(regionDomainModel);
+            _nZWalksDbContext.SaveChanges();
+
+            //Map Domain Model back to DTO
+            var regionDTO = new RegionDTO
+            {
+                Id = regionDomainModel.Id,
+                Name = regionDomainModel.Name,
+                Code = regionDomainModel.Code,
+                RegionImageUrl = regionDomainModel.RegionImageUrl
+            };
+
+            return CreatedAtAction(nameof(GetRegionById), new { id = regionDTO.Id }, regionDTO);
         }
     }
 }
