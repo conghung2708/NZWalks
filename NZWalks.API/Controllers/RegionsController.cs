@@ -166,6 +166,7 @@ namespace NZWalks.API.Controllers
 
         // DELETE: api/regions/{id}
         [HttpDelete("{id:Guid}")]
+
         public async Task<ActionResult<RegionDTO>> DeleteRegion(Guid id)
         {
             //var regionDomainModel = await _nZWalksDbContext.Regions.FirstOrDefaultAsync(u => u.Id == id);
