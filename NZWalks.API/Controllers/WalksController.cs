@@ -26,18 +26,25 @@ namespace NZWalks.API.Controllers
 
         public async Task<IActionResult> CreateWalkAsync([FromBody] AddWalkRequestDTO addWalkRequestDTO)
         {
+            if(ModelState.IsValid)
+            {
+                //Map DTO to Domain
+                var walkDomainModel = _mapper.Map<Walk>(addWalkRequestDTO);
 
-            //Map DTO to Domain
-            var walkDomainModel = _mapper.Map<Walk>(addWalkRequestDTO);
+                //Create Walk
+                await _walkRepository.CreateWalkAsync(walkDomainModel);
 
-            //Create Walk
-            await _walkRepository.CreateWalkAsync(walkDomainModel);
+                //Map Domain Model to DTO
 
-            //Map Domain Model to DTO
+                var walkDTO = _mapper.Map<WalkDTO>(walkDomainModel);
 
-            var walkDTO = _mapper.Map<WalkDTO>(walkDomainModel);
-
-            return Ok(walkDTO);
+                return Ok(walkDTO);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+          
         }
 
         //GET ALL
@@ -71,13 +78,20 @@ namespace NZWalks.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateWalkAsync([FromRoute] Guid id, [FromBody] UpdateWalkRequestDTO updateWalkRequestDTO)
         {
-            var walkDomainModel = _mapper.Map<Walk>(updateWalkRequestDTO);
+            if(ModelState.IsValid)
+            {
+                var walkDomainModel = _mapper.Map<Walk>(updateWalkRequestDTO);
 
-            walkDomainModel = await _walkRepository.UpdateWalkAsync(id, walkDomainModel);
+                walkDomainModel = await _walkRepository.UpdateWalkAsync(id, walkDomainModel);
 
-            var walkDTO = _mapper.Map<WalkDTO>(walkDomainModel);
+                var walkDTO = _mapper.Map<WalkDTO>(walkDomainModel);
 
-            return Ok(walkDTO);
+                return Ok(walkDTO);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         [HttpDelete]
